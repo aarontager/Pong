@@ -12,14 +12,18 @@ public class PongWindow extends JFrame {
     private final int BALL_WIDTH = 20,
             PADDLE_WIDTH = 10,
             PADDLE_HEIGHT = 60,
-            PADDLE_SPEED = 5;
+            PADDLE_SPEED = 8;
 
     private int ballSpeedHorizontal = 1,
-            ballSpeedVertical = 1;
+            ballSpeedVertical = 1,
+            leftScore = 0,
+            rightScore = 0;
+
+    private String scoreString = "Point! Current score: Left - %d, Right - %d";
 
     private Point ball = new Point(300, 400),
             leftPaddle = new Point(25, 370),
-            rightPaddle = new Point(555, 370);
+            rightPaddle = new Point(565, 370);
 
     private PongInnerPanel pongInnerPanel = new PongInnerPanel();
 
@@ -74,10 +78,48 @@ public class PongWindow extends JFrame {
                 ballSpeedVertical = -ballSpeedVertical;
             }
 
+            int edge = ballReachedEdge();
+
+            if(edge > 0) {
+                givePoint(edge);
+                reset();
+            }
+
             repaint();
         });
 
         ballTimer.start();
+    }
+
+    private void reset() {
+        ball.x = 300;
+        ball.y = 400;
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void givePoint(int side) {
+        switch (side) {
+            case 1 :
+                rightScore++;
+                System.out.println(String.format(scoreString, leftScore, rightScore));
+                break;
+            case 2 :
+                leftScore++;
+                System.out.println(String.format(scoreString, leftScore, rightScore));
+                break;
+        }
+    }
+
+    private int ballReachedEdge() {
+        if(ball.x < leftPaddle.x)
+            return 1;
+        if(ball.x + BALL_WIDTH > rightPaddle.x + PADDLE_WIDTH)
+            return 2;
+        return 0;
     }
 
     private boolean ballCollisionHorizontal() {
